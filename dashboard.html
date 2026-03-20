@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEU Library – Admin Dashboard</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="dashboard.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="neuLogo.png" alt="NEU" class="logo-img-sm" onerror="this.style.display='none';document.getElementById('hdr-fallback').style.display='flex'"/>
+    <div id="sb-fallback" class="logo-img-sm-fallback" style="display:none">NEU</div>
+    <span>Library Admin</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" data-section="section-overview"  onclick="navTo(this)"><span class="nav-icon">⊞</span> Overview</a>
+    <a href="#" class="nav-item"        data-section="section-visitors"  onclick="navTo(this)"><span class="nav-icon">👥</span> Visitor Logs</a>
+    <a href="#" class="nav-item"        data-section="section-users"     onclick="navTo(this)"><span class="nav-icon">🛡</span> User Management</a>
+    <a href="#" class="nav-item"        data-section="section-reports"   onclick="navTo(this)"><span class="nav-icon">📄</span> Reports</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span id="admin-name-sidebar">Admin</span>
+    <button class="btn-role-switch hidden" id="sb-switch-visitor" onclick="switchToVisitor()" style="margin-top:8px;width:100%;">
+      Switch to Visitor View
+    </button>
+    <button class="btn-logout-sm" onclick="handleLogout()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="dashboard-main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div>
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+      <p class="page-sub" id="current-date-display"></p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+  <section id="section-overview" class="dash-section active">
+
+    <!-- PERIOD FILTER -->
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-btn active" onclick="setFilter('day',this)">Today</button>
+        <button class="filter-btn" onclick="setFilter('week',this)">This Week</button>
+        <button class="filter-btn" onclick="setFilter('month',this)">This Month</button>
+        <button class="filter-btn" onclick="setFilter('custom',this)">Custom Range</button>
+      </div>
+      <div class="date-range hidden" id="custom-range">
+        <input type="date" id="range-start"/>
+        <span>to</span>
+        <input type="date" id="range-end"/>
+        <button class="btn-apply" onclick="applyCustomRange()">Apply</button>
+      </div>
+    </div>
+
+    <!-- ADVANCED FILTERS ROW -->
+    <div class="adv-filter-bar">
+      <span class="adv-filter-label">Filter by:</span>
+
+      <div class="adv-filter-group">
+        <label>Purpose</label>
+        <select id="filter-purpose" onchange="renderDashboard()">
+          <option value="">All Purposes</option>
+          <option value="Reading Books">Reading Books</option>
+          <option value="Research / Thesis">Research / Thesis</option>
+          <option value="Use of Computer">Use of Computer</option>
+          <option value="Doing Assignments">Doing Assignments</option>
+          <option value="Borrowing Materials">Borrowing Materials</option>
+          <option value="Study Group">Study Group</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="adv-filter-group">
+        <label>College</label>
+        <select id="filter-college" onchange="renderDashboard()">
+          <option value="">All Departments</option>
+          <option>CICS</option>
+          <option>CAS</option>
+          <option>CBA</option>
+          <option>CEA</option>
+          <option>CED</option>
+          <option>CFAD</option>
+          <option>CN</option>
+          <option>COM</option>
+          <option>CLA</option>
+          <option>ADMIN / Staff</option>
+        </select>
+      </div>
+
+      <div class="adv-filter-group">
+        <label>Visitor Type</label>
+        <select id="filter-usertype" onchange="renderDashboard()">
+          <option value="">All Types</option>
+          <option value="student">Students</option>
+          <option value="faculty">Faculty / Teachers</option>
+          <option value="staff">Staff / Employees</option>
+        </select>
+      </div>
+
+      <button class="btn-clear-filters" onclick="clearFilters()">✕ Clear Filters</button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid" id="stat-cards-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">Visitors (Period)</div>
+        <div class="stat-value" id="stat-period">0</div>
+        <div class="stat-icon">📊</div>
+      </div>
+      <div class="stat-card stat-yellow">
+        <div class="stat-label">Students</div>
+        <div class="stat-value" id="stat-students">0</div>
+        <div class="stat-icon">🎓</div>
+      </div>
+      <div class="stat-card stat-white">
+        <div class="stat-label">Faculty / Teachers</div>
+        <div class="stat-value" id="stat-faculty">0</div>
+        <div class="stat-icon">👨‍🏫</div>
+      </div>
+      <div class="stat-card stat-dark">
+        <div class="stat-label">Staff / Employees</div>
+        <div class="stat-value" id="stat-staff">0</div>
+        <div class="stat-icon">🧑‍💼</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="chart-card chart-big">
+        <h3>Visitor Trend <span class="chart-subtitle" id="trend-label">(Last 7 Days)</span></h3>
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>By College</h3>
+        <canvas id="collegeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="charts-row charts-row-2">
+      <div class="chart-card">
+        <h3>Purpose Breakdown</h3>
+        <canvas id="purposeChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Visitor Type</h3>
+        <canvas id="typeChart"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════ VISITOR LOGS ═══════════════════ -->
+  <section id="section-visitors" class="dash-section">
+    <div class="section-header">
+      <h2>Visitor Logs</h2>
+      <input class="search-box" type="text" id="log-search" placeholder="Search by name or email…" oninput="renderVisitTable()"/>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>Date & Time</th><th>Check-In Time</th><th>Name</th><th>Email</th><th>Type</th><th>College</th><th>Purpose</th></tr>
+        </thead>
+        <tbody id="visit-tbody"><tr><td colspan="7" class="empty-row">No records found.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ USER MANAGEMENT ═══════════════════ -->
+  <section id="section-users" class="dash-section">
+    <div class="section-header">
+      <h2>User Management</h2>
+      <input class="search-box" type="text" id="user-search" placeholder="Search by name or email…" oninput="renderUserTable()"/>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Type</th><th>College</th><th>Program</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody id="user-tbody"><tr><td colspan="7" class="empty-row">No users found.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ REPORTS ═══════════════════ -->
+  <section id="section-reports" class="dash-section">
+    <h2>Generate Reports</h2>
+    <p class="section-desc">Select a period and download a PDF summary of visitor statistics.</p>
+    <div class="report-options">
+      <div class="report-card" onclick="generateReport('today')"><div class="report-icon">📅</div><h4>Today's Report</h4><p>All visitors from today</p></div>
+      <div class="report-card" onclick="generateReport('week')"><div class="report-icon">📆</div><h4>Weekly Report</h4><p>Visitors this week</p></div>
+      <div class="report-card" onclick="generateReport('month')"><div class="report-icon">🗓</div><h4>Monthly Report</h4><p>Visitors this month</p></div>
+      <div class="report-card" onclick="generateReport('all')"><div class="report-icon">📊</div><h4>Full Report</h4><p>All visit records</p></div>
+    </div>
+    <div class="custom-report-area">
+      <h3>Custom Date Range</h3>
+      <div class="custom-report-form">
+        <div class="field-group"><label>From</label><input type="date" id="report-start"/></div>
+        <div class="field-group"><label>To</label><input type="date" id="report-end"/></div>
+        <button class="btn-primary" style="width:auto;padding:0 24px" onclick="generateCustomReport()">Generate CSV</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+
+<script type="module" src="dashboard.js"></script>
+<script type="module" src="reports.js"></script>
+<!-- dashboard.js handles: charts, filters, visitor log, user management -->
+</body>
+</html>

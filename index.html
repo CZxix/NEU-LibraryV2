@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEU Library – Visitor Log</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="login.css"/>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- LEFT: Branding -->
+  <div class="brand-panel">
+    <div class="brand-inner">
+      <div class="logo-block">
+        <img src="neuLogo.png" alt="NEU" class="logo-img-brand" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'"/>
+        <div id="logo-fallback" class="logo-fallback-circle" style="display:none">NEU</div>
+        <div class="brand-name-block">
+          <span class="brand-name">New Era University</span>
+        </div>
+      </div>
+
+      <div class="brand-tagline">
+        <h1>Your Gateway to Knowledge.</h1>
+        <p>Sign in with your NEU institutional account to check in and begin your library visit.</p>
+      </div>
+
+      <div class="brand-stats-bar">
+        <div class="bstat">
+          <span class="bstat-num" id="daily-count">–</span>
+          <span class="bstat-lbl">Today's Visitors</span>
+        </div>
+        <div class="bstat-divider"></div>
+        <div class="bstat">
+          <span class="bstat-num" id="weekly-count">–</span>
+          <span class="bstat-lbl">This Week</span>
+        </div>
+      </div>
+    </div>
+    <div class="brand-circles">
+      <div class="bc bc1"></div><div class="bc bc2"></div><div class="bc bc3"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Auth Panel -->
+  <div class="auth-panel">
+
+    <!-- CLOCK HEADER: flex space-between, clock anchored top-right -->
+    <div class="auth-header">
+      <div class="auth-header-left"></div>
+      <div class="clock-widget">
+        <div class="clock-time" id="clock-time">--:--:-- --</div>
+        <div class="clock-date" id="clock-date">Loading...</div>
+      </div>
+    </div>
+
+    <!-- AUTH BODY: centers the form card in remaining space -->
+    <div class="auth-body">
+      <div class="auth-inner">
+
+      <div class="tab-switcher">
+        <button class="tab-btn active" id="tab-login"    onclick="showTab('login')">Sign In</button>
+        <button class="tab-btn"        id="tab-register" onclick="showTab('register')">Register</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="form-login" class="auth-form active">
+        <h2 class="form-title">Welcome Back</h2>
+        <p class="form-sub">Use your NEU email or Student ID to sign in.</p>
+
+        <div id="login-error" class="alert alert-error hidden"></div>
+        <div id="login-info"  class="alert alert-info  hidden"></div>
+
+        <!-- Change 2: Google OAuth (NEU domain only) -->
+        <button class="btn-google" onclick="handleGoogleSignIn()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google (@neu.edu.ph)
+        </button>
+
+        <div class="divider">or sign in with credentials</div>
+
+        <div class="field-group">
+          <label>Email or Student ID</label>
+          <input type="text" id="login-identifier" placeholder="Student ID or name@neu.edu.ph" autocomplete="off"/>
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="Your password"/>
+        </div>
+
+        <button class="btn-primary" onclick="handleLogin()">Sign In to Library</button>
+        <p class="form-footer">No account? <a href="#" onclick="showTab('register')">Register here</a></p>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="form-register" class="auth-form">
+        <h2 class="form-title">Create Account</h2>
+        <p class="form-sub">Register with your NEU institutional details.</p>
+
+        <div id="register-error"   class="alert alert-error   hidden"></div>
+        <div id="register-success" class="alert alert-success hidden"></div>
+
+        <!-- Change 3: Google Register pre-fills email/name -->
+        <button class="btn-google" onclick="handleGoogleRegister()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Register with Google (@neu.edu.ph)
+        </button>
+
+        <div class="divider">or fill in the form manually</div>
+
+        <div class="field-row">
+          <div class="field-group"><label>First Name</label><input type="text" id="reg-firstname" placeholder="Juan"/></div>
+          <div class="field-group field-mi"><label>M.I.</label><input type="text" id="reg-mi" placeholder="D." maxlength="3"/></div>
+          <div class="field-group"><label>Last Name</label><input type="text" id="reg-lastname" placeholder="Dela Cruz"/></div>
+        </div>
+        <div class="field-group">
+          <label>School / Employee ID</label>
+          <input type="text" id="reg-id" placeholder="yy-xxxxx-xxx (e.g. 24-13384-401)" maxlength="12"/>
+          <span style="font-size:0.72rem;color:var(--neu-grey);margin-top:2px;">Format: yy-xxxxx-xxx</span>
+        </div>
+        <div class="field-group">
+          <label>Institutional Email</label>
+          <input type="email" id="reg-email" placeholder="yourid@neu.edu.ph"/>
+        </div>
+        <div class="field-group">
+          <label>User Type</label>
+          <select id="reg-usertype">
+            <option value="">-- Select Type --</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty / Teacher</option>
+            <option value="staff">Staff / Employee</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>College / Department</label>
+          <select id="reg-college">
+                        <option value="">-- Select Department --</option>
+            <option>CICS</option>
+            <option>CAS</option>
+            <option>CBA</option>
+            <option>CEA</option>
+            <option>CED</option>
+            <option>CFAD</option>
+            <option>CN</option>
+            <option>COM</option>
+            <option>CLA</option>
+            <option>ADMIN / Staff</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Program (Students) / Position (Faculty/Staff)</label>
+          <input type="text" id="reg-program" placeholder="e.g. BSCS, Professor, Librarian"/>
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" placeholder="Create a password (min. 6 chars)"/>
+        </div>
+        <button class="btn-primary" onclick="handleRegister()">Create Account</button>
+        <p class="form-footer">Already registered? <a href="#" onclick="showTab('login')">Sign in here</a></p>
+      </div>
+
+    </div><!-- /.auth-inner -->
+    </div><!-- /.auth-body -->
+  </div><!-- /.auth-panel -->
+</div><!-- /.page-wrapper -->
+
+<!-- Change 2: Google OAuth Modal — NEU domain enforced, pre-fills name/email for register -->
+<div id="google-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <svg viewBox="0 0 24 24" width="28" height="28">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span id="google-modal-title">Sign in with Google</span>
+    </div>
+    <p class="modal-note" id="google-modal-note">Enter your NEU institutional Google email (@neu.edu.ph) to continue.</p>
+    <div id="modal-error" class="alert alert-error hidden"></div>
+
+    <!-- Step 1: Email -->
+    <div id="google-step-email">
+      <div class="field-group">
+        <label>NEU Google Email</label>
+        <input type="email" id="google-email-input" placeholder="yourname@neu.edu.ph"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="confirmGoogleEmail()">Continue</button>
+        <button class="btn-modal-cancel" onclick="closeGoogleModal()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Complete profile (new user) — Change 3: email/firstname/lastname pre-filled, only ID/MI/college/program required -->
+    <div id="google-extra-fields" class="hidden">
+      <div class="alert alert-info" style="margin-bottom:14px;">
+        ✅ Google account verified! Please fill in the remaining details to complete registration.
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>First Name</label>
+          <input type="text" id="g-firstname" placeholder="Auto-filled" style="background:#f0f4ff;"/>
+        </div>
+        <div class="field-group field-mi">
+          <label>M.I.</label>
+          <input type="text" id="g-mi" placeholder="D." maxlength="3"/>
+        </div>
+        <div class="field-group">
+          <label>Last Name</label>
+          <input type="text" id="g-lastname" placeholder="Auto-filled" style="background:#f0f4ff;"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Institutional Email</label>
+        <input type="email" id="g-email-display" readonly style="background:#f0f4ff;color:var(--neu-grey);"/>
+      </div>
+      <div class="field-group">
+        <label>School / Employee ID <span style="color:var(--neu-error)">*</span></label>
+        <input type="text" id="g-schoolid" placeholder="yy-xxxxx-xxx (e.g. 24-13384-401)" maxlength="12"/>
+      </div>
+      <div class="field-group">
+        <label>User Type <span style="color:var(--neu-error)">*</span></label>
+        <select id="g-usertype">
+          <option value="">-- Select --</option>
+          <option value="student">Student</option>
+          <option value="faculty">Faculty / Teacher</option>
+          <option value="staff">Staff / Employee</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>College / Department <span style="color:var(--neu-error)">*</span></label>
+        <select id="g-college">
+          <option value="">-- Select Department --</option>
+          <option>CICS</option>
+          <option>CAS</option>
+          <option>CBA</option>
+          <option>CEA</option>
+          <option>CED</option>
+          <option>CFAD</option>
+          <option>CN</option>
+          <option>COM</option>
+          <option>CLA</option>
+          <option>ADMIN / Staff</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Program / Position <span style="color:var(--neu-error)">*</span></label>
+        <input type="text" id="g-program" placeholder="e.g. BSCS, Professor"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="confirmGoogleRegisterProfile()">Complete Registration</button>
+        <button class="btn-modal-cancel" onclick="closeGoogleModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change 6: Admin Role Choice Modal — shown to admin users on login -->
+<div id="admin-choice-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:400px;text-align:center;padding:40px 32px;">
+    <div style="font-size:2.4rem;margin-bottom:14px;">🛡️</div>
+    <h3 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:8px;color:var(--neu-blue);">Administrator Detected</h3>
+    <p id="admin-choice-name" style="font-size:0.875rem;color:var(--neu-grey);margin-bottom:6px;font-weight:600;"></p>
+    <p style="font-size:0.85rem;color:var(--neu-grey);margin-bottom:26px;">
+      Your account has administrator privileges. Where would you like to go?
+    </p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn-primary" onclick="adminChooseDashboard()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.95rem;">
+        <span style="font-size:1.1rem;">⊞</span> Go to Admin Dashboard
+      </button>
+      <button onclick="adminChooseCheckin()" style="width:100%;height:48px;background:transparent;border:2px solid var(--neu-blue);color:var(--neu-blue);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.9rem;font-weight:700;cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:10px;" onmouseover="this.style.background='var(--neu-blue-pale)'" onmouseout="this.style.background='transparent'">
+        <span style="font-size:1.1rem;">📚</span> Check In as Visitor
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="module" src="login.js"></script>
+</body>
+</html>

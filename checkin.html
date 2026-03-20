@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEU Library – Check In</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="checkin.css"/>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <img src="neuLogo.png" alt="NEU" class="logo-img-sm" onerror="this.style.display='none';document.getElementById('hdr-fallback').style.display='flex'"/>
+    <div id="hdr-fallback" class="logo-circle-sm" style="display:none">NEU</div>
+    <span class="header-title">New Era University Library</span>
+  </div>
+  <div class="header-right">
+    <span class="visitor-name" id="header-name"></span>
+    <!-- Role-switch pill: only shown if user also has admin role -->
+    <button class="btn-role-switch hidden" id="btn-switch-admin" onclick="switchToAdmin()">
+      Switch to Admin View
+    </button>
+    <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
+  </div>
+</header>
+
+<main class="checkin-main">
+  <div class="checkin-bg"></div>
+
+  <!-- Check-in Form -->
+  <div class="checkin-card" id="step-form">
+    <div class="card-badge">Library Check-In</div>
+    <h2>Welcome,<br/><span id="visitor-display-name">Visitor</span>!</h2>
+    <p class="card-sub">Fill in your visit details to proceed.</p>
+
+    <div id="checkin-error" class="alert alert-error hidden"></div>
+
+    <div class="field-group">
+      <label>Purpose of Visit <span style="font-size:0.75rem;color:var(--neu-grey);font-weight:400;text-transform:none;letter-spacing:0">(select all that apply)</span></label>
+      <div class="purpose-checkboxes" id="purpose-checkboxes">
+        <label class="purpose-option"><input type="checkbox" value="Reading Books"/> <span>📖 Reading Books</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Research / Thesis"/> <span>🔬 Research / Thesis</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Use of Computer"/> <span>💻 Use of Computer</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Doing Assignments"/> <span>✏️ Doing Assignments</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Borrowing Materials"/> <span>📦 Borrowing Materials</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Study Group"/> <span>👥 Study Group</span></label>
+        <label class="purpose-option"><input type="checkbox" value="Other"/> <span>💬 Other</span></label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>College / Department</label>
+      <select id="visit-college">
+                    <option value="">-- Select Department --</option>
+            <option>CICS</option>
+            <option>CAS</option>
+            <option>CBA</option>
+            <option>CEA</option>
+            <option>CED</option>
+            <option>CFAD</option>
+            <option>CN</option>
+            <option>COM</option>
+            <option>CLA</option>
+            <option>ADMIN / Staff</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" onclick="handleCheckin()">Check In Now</button>
+  </div>
+
+  <!-- Success Card -->
+  <div class="success-card hidden" id="step-success">
+    <div class="success-icon">✓</div>
+    <h2>Welcome to the<br/>NEU Library!</h2>
+    <p id="success-name-display"></p>
+    <div class="success-details">
+      <div class="detail-chip" id="success-purpose"></div>
+      <div class="detail-chip" id="success-college"></div>
+      <div class="detail-chip" id="success-time"></div>
+    </div>
+    <p class="success-note">Your visit has been logged. Enjoy your time at the library!</p>
+    <button class="btn-outline" onclick="resetCheckin()">New Visit</button>
+    <button class="btn-logout-white" onclick="handleLogout()">Sign Out</button>
+    <span class="signout-countdown" id="signout-countdown"></span>
+  </div>
+
+</main>
+
+
+
+<script type="module" src="checkin.js"></script>
+</body>
+</html>
