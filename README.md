@@ -3,6 +3,7 @@
 A web-based library visitor check-in system for **New Era University**. Built with vanilla HTML/CSS/JavaScript and powered by **Firebase** (Authentication + Firestore + Hosting).
 
 # 🌐 **Live Site:** https://neu-libraryv2-7000e.web.app
+# https://czxix.github.io/NEU-LibraryV2/ (Github)
 ### jcesperanza@neu.edu.ph | NEU123
 
 ---
